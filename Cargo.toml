@@ -1,10 +1,7 @@
 [package]
 name = "magic-wormhole"
 version = "0.6.0"
-authors = [
-    "piegames <info@piegames.de>",
-    "Brian Warner <warner@lothar.com>"
-]
+authors = ["piegames <info@piegames.de>", "Brian Warner <warner@lothar.com>"]
 description = "Get things from one computer to another, safely"
 keywords = ["magic-wormhole", "wormhole", "file-transfer", "transfer"]
 categories = ["network-programming", "command-line-utilities"]
@@ -14,7 +11,7 @@ repository = "https://github.com/magic-wormhole/magic-wormhole.rs"
 documentation = "https://docs.rs/magic-wormhole/latest/"
 license = "EUPL-1.2"
 edition = "2021"
-rust-version = "1.66" # MSRV (also change in CI)
+rust-version = "1.66"                                                         # MSRV (also change in CI)
 
 [dependencies]
 serde = { version = "1.0.120", features = ["rc"] }
@@ -34,7 +31,11 @@ futures_ringbuf = "0.3.1"
 time = { version = "0.3.7", features = ["formatting"] }
 instant = { version = "0.1.12", features = ["wasm-bindgen"] }
 
-derive_more = { version = "0.99.0", default-features = false, features = ["display", "deref", "from"] }
+derive_more = { version = "0.99.0", default-features = false, features = [
+    "display",
+    "deref",
+    "from",
+] }
 thiserror = "1.0.24"
 
 futures = "0.3.12"
@@ -60,7 +61,10 @@ rmp-serde = { version = "1.0.0", optional = true }
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 libc = "0.2.101"
 async-std = { version = "1.12.0", features = ["attributes", "unstable"] }
-async-tungstenite = { version = "0.17.1", features = ["async-std-runtime", "async-tls"] }
+async-tungstenite = { version = "0.17.1", features = [
+    "async-std-runtime",
+    "async-tls",
+] }
 async-io = "1.6.0"
 
 # Transit
@@ -75,7 +79,9 @@ async-tar = { version = "0.4.2", optional = true }
 wasm-timer = "0.2.5"
 ws_stream_wasm = "0.7.3"
 getrandom = { version = "0.2.5", features = ["js"] }
-getrandom_2 = { package = "getrandom", version = "0.1.16", features = ["js-sys"] }
+getrandom_2 = { package = "getrandom", version = "0.1.16", features = [
+    "js-sys",
+] }
 
 # for some tests
 [dev-dependencies]
@@ -83,7 +89,15 @@ env_logger = "0.10.0"
 eyre = "0.6.5"
 
 [features]
-transit = ["socket2", "stun_codec", "if-addrs", "bytecodec", "async-trait", "noise-protocol", "noise-rust-crypto"]
+transit = [
+    "socket2",
+    "stun_codec",
+    "if-addrs",
+    "bytecodec",
+    "async-trait",
+    "noise-protocol",
+    "noise-rust-crypto",
+]
 transfer = ["transit", "async-tar", "rmp-serde"]
 forwarding = ["transit", "rmp-serde"]
 default = ["transit", "transfer"]
@@ -95,5 +109,5 @@ strip = "debuginfo"
 lto = "thin"
 
 [workspace]
-members = [".", "cli"]
+members = [".", "cli", "wasm"]
 default-members = ["cli"]
