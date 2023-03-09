@@ -8,7 +8,7 @@
 //! At its core, "peer messages" are exchanged over an established wormhole connection with the other side.
 //! They are used to set up a [transit] portal and to exchange a file offer/accept. Then, the file is transmitted over the transit relay.
 
-use futures::{AsyncRead, AsyncWrite};
+use futures::{select, AsyncRead, AsyncWrite, FutureExt};
 use serde_derive::{Deserialize, Serialize};
 #[cfg(test)]
 use serde_json::json;
@@ -440,7 +440,37 @@ pub struct ReceiveRequest {
     their_hints: Arc<transit::Hints>,
 }
 
+pub enum ReceiveRequestAnswer {
+    Accept,
+    Reject,
+    Cancel,
+}
+
 impl ReceiveRequest {
+    pub async fn wait_for_answer(
+        &mut self,
+        accept: impl Future<Output = bool>,
+    ) -> Result<ReceiveRequestAnswer, TransferError> {
+        select! {
+            error = async {
+                loop {
+                    if let Ok(PeerMessage::Error(_)) = self.wormhole.receive_json().await? {
+                        break;
+                    }
+                }
+                Ok(ReceiveRequestAnswer::Cancel)
+            }.fuse() => error,
+            answer = async {
+                let accepted = accept.await;
+                if accepted {
+                    Ok(ReceiveRequestAnswer::Accept)
+                } else {
+                    Ok(ReceiveRequestAnswer::Reject)
+                }
+            }.fuse() => answer
+        }
+    }
+
     /**
      * Accept the file offer
      *
